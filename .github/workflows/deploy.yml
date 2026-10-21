@@ -1,0 +1,68 @@
+name: Deploy Stellantis GA Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: TypeScript Type Check
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Build Production Web App
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || '' }}
+
+      - name: Prepare GitHub Pages Static Files (.nojekyll and 404 fallback)
+        run: |
+          touch frontend/dist/.nojekyll
+          cp frontend/dist/index.html frontend/dist/404.html
+
+      # Deployment Path 1: GitHub Actions Native Pages Deploy
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+      - name: Deploy to GitHub Pages via Actions
+        id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      # Deployment Path 2: Also publish to gh-pages branch (for "Deploy from branch" mode)
+      - name: Deploy to gh-pages Branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: frontend/dist
+          branch: gh-pages
+          clean: true

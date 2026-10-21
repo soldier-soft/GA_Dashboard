@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/*/__pycache__/
+env/
+venv/
+.venv/
+ENV/
+
+# Production Build (Workflow will build it from source)
+frontend/dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Environment variables & secrets (Never commit secrets)
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Editor & OS files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
